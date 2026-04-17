@@ -8,13 +8,22 @@ const getApiKey = () => {
   return import.meta.env.VITE_GEMINI_API_KEY;
 };
 
-const ai = new GoogleGenAI({
-  apiKey: getApiKey(),
-});
+let ai: GoogleGenAI | null = null;
 
 export const generateSEODescription = async (content: string, keywords: string) => {
   if (!content) return "Please add some content first to generate a description.";
+  
   try {
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      console.warn("Gemini API key is not configured. AI description generation is disabled.");
+      return "AI generation disabled: Please configure the VITE_GEMINI_API_KEY in your environment.";
+    }
+
+    if (!ai) {
+      ai = new GoogleGenAI({ apiKey });
+    }
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: `You are an expert SEO specialist. Create a highly engaging, concise meta description (max 150 characters) summarizing the following blog post content. Incorporate these keywords naturally if possible: "${keywords}". Ensure it reads well and drives clicks. Return ONLY the meta description text without quotes or explanation. 
