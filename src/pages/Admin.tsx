@@ -32,22 +32,13 @@ export default function Admin() {
   const [existingPosts, setExistingPosts] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(false);
-  const [activeTab, setActiveTab] = useState<'create_blog' | 'create_tool' | 'seo' | 'messages'>('create_blog');
-  const [optimizingPostId, setOptimizingPostId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'create_blog' | 'create_tool' | 'messages'>('create_blog');
 
   useEffect(() => {
     if (isAdmin) {
-      if (activeTab === 'seo') fetchExistingPosts();
       if (activeTab === 'messages') fetchMessages();
     }
   }, [isAdmin, activeTab]);
-
-  const fetchExistingPosts = async () => {
-    setLoadingData(true);
-    const { data, error } = await supabase.from('blogs').select('id, title, excerpt, content, keywords').order('created_at', { ascending: false });
-    if (data) setExistingPosts(data);
-    setLoadingData(false);
-  };
 
   const fetchMessages = async () => {
     setLoadingData(true);
@@ -65,22 +56,6 @@ export default function Admin() {
     const generated = await generateSEODescription(content, keywords);
     setExcerpt(generated);
     setIsGeneratingSEO(false);
-  };
-
-  const handleUpdatePostSEO = async (postId: string, postContent: string, postKeywords: string) => {
-    setOptimizingPostId(postId);
-    const generated = await generateSEODescription(postContent, postKeywords);
-    if (generated && !generated.startsWith("Error")) {
-      const { error } = await supabase.from('blogs').update({ excerpt: generated }).eq('id', postId);
-      if (!error) {
-         setExistingPosts(posts => posts.map(p => p.id === postId ? { ...p, excerpt: generated } : p));
-      } else {
-         alert("Failed to update in database: " + error.message);
-      }
-    } else {
-      alert(generated);
-    }
-    setOptimizingPostId(null);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -206,12 +181,6 @@ export default function Admin() {
             <Wrench className="w-4 h-4"/> Add AI Tool
           </button>
           <button 
-            onClick={() => setActiveTab('seo')}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'seo' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
-          >
-            SEO Optimizer
-          </button>
-          <button 
             onClick={() => setActiveTab('messages')}
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5 ${activeTab === 'messages' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
           >
@@ -331,47 +300,6 @@ export default function Admin() {
               </button>
             </div>
           </form>
-        </div>
-      )}
-
-      {activeTab === 'seo' && (
-        <div className="bg-white rounded-3xl shadow-sm border border-purple-100 p-8">
-           <div className="flex items-center justify-between mb-6">
-             <h2 className="text-xl font-bold text-gray-900">SEO Meta Optimizer</h2>
-             <button onClick={fetchExistingPosts} className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">
-                <RefreshCw className="w-4 h-4 mr-1.5" /> Refresh List
-             </button>
-           </div>
-           
-           {loadingData ? (
-             <div className="text-center py-10 text-gray-500">Loading posts...</div>
-           ) : existingPosts.length === 0 ? (
-             <div className="text-center py-10 text-gray-500 bg-gray-50 rounded-2xl border border-gray-100">No blog posts found.</div>
-           ) : (
-             <div className="space-y-6">
-               {existingPosts.map((post) => {
-                 const isIdeal = post.excerpt?.length >= 120 && post.excerpt?.length <= 160;
-                 return (
-                   <div key={post.id} className="border border-gray-200 rounded-2xl p-5 bg-gray-50">
-                     <div className="flex justify-between items-start mb-3">
-                       <h3 className="font-semibold text-gray-900 text-lg">{post.title}</h3>
-                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isIdeal ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
-                         {post.excerpt?.length || 0} chars
-                       </span>
-                     </div>
-                     <p className="text-sm text-gray-600 mb-4 bg-white p-3 rounded-lg border border-gray-100">
-                       {post.excerpt || 'No description set...'}
-                     </p>
-                     <div className="flex justify-end">
-                       <button onClick={() => handleUpdatePostSEO(post.id, post.content, post.keywords)} disabled={optimizingPostId === post.id} className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-xl text-white bg-purple-600 hover:bg-purple-700 disabled:opacity-50">
-                         {optimizingPostId === post.id ? 'Generating...' : <><Wand2 className="w-4 h-4 mr-2" /> Regenerate SEO</>}
-                       </button>
-                     </div>
-                   </div>
-                 );
-               })}
-             </div>
-           )}
         </div>
       )}
 

@@ -10,11 +10,15 @@ export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [post, setPost] = useState<BlogPostType | null>(null);
+  const [recentPosts, setRecentPosts] = useState<BlogPostType[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchPost() {
+    async function fetchPostAndRecent() {
       if (!slug) return;
+      
+      // Scroll to top when changing blog posts
+      window.scrollTo(0, 0);
       
       const { data, error } = await supabase
         .from('blogs')
@@ -30,10 +34,23 @@ export default function BlogPost() {
       }
       
       setPost(data);
+
+      const { data: recentData } = await supabase
+        .from('blogs')
+        .select('*')
+        .eq('published', true)
+        .neq('slug', slug)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      if (recentData) {
+        setRecentPosts(recentData);
+      }
+
       setLoading(false);
     }
     
-    fetchPost();
+    fetchPostAndRecent();
   }, [slug, navigate]);
 
   if (loading) {
@@ -75,58 +92,94 @@ export default function BlogPost() {
       />
       
       <article className="bg-[#fcfcfc] min-h-screen py-16 sm:py-24">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <Link to="/blog" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors mb-12">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to all guides
-          </Link>
-
-          <header className="mb-14">
-            <h1 className="text-4xl sm:text-5xl font-bold font-serif text-gray-900 leading-tight mb-6">
-              {post.title}
-            </h1>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
             
-            <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 border-b border-gray-200 pb-8">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <time dateTime={post.created_at}>
-                  {format(new Date(post.created_at), 'MMMM d, yyyy')}
-                </time>
+            <div className="lg:col-span-2 max-w-3xl">
+              <Link to="/blog" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors mb-12">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to all guides
+              </Link>
+
+              <header className="mb-14">
+                <h1 className="text-4xl sm:text-5xl font-bold font-serif text-gray-900 leading-tight mb-6">
+                  {post.title}
+                </h1>
+                
+                <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 border-b border-gray-200 pb-8">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    <time dateTime={post.created_at}>
+                      {format(new Date(post.created_at), 'MMMM d, yyyy')}
+                    </time>
+                  </div>
+                  <div className="flex items-center gap-2">
+                     <User className="w-4 h-4" />
+                     <span>AIToolGuide Team</span>
+                  </div>
+                  {post.tags && post.tags.length > 0 && (
+                    <div className="flex items-center gap-2">
+                      <Tag className="w-4 h-4" />
+                      <div className="flex gap-2">
+                        {post.tags.map(tag => (
+                          <span key={tag} className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </header>
+
+              {post.image_url && (
+                <div className="mb-14 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+                  <img 
+                    src={post.image_url} 
+                    alt={post.title} 
+                    className="w-full h-auto max-h-[500px] object-cover"
+                  />
+                </div>
+              )}
+
+              <div className="bg-white p-8 sm:p-12 rounded-3xl shadow-sm border border-gray-100 mb-16">
+                <MarkdownRenderer content={post.content} />
               </div>
-              <div className="flex items-center gap-2">
-                 <User className="w-4 h-4" />
-                 <span>AIToolGuide Team</span>
-              </div>
-              {post.tags && post.tags.length > 0 && (
-                <div className="flex items-center gap-2">
-                  <Tag className="w-4 h-4" />
-                  <div className="flex gap-2">
-                    {post.tags.map(tag => (
-                      <span key={tag} className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md">
-                        {tag}
-                      </span>
+            </div>
+
+            {/* Aside for related posts */}
+            {recentPosts.length > 0 && (
+              <aside className="lg:col-span-1">
+                <div className="sticky top-32">
+                  <h3 className="text-xl font-bold font-serif text-gray-900 mb-6">Read More Guides</h3>
+                  <div className="space-y-6">
+                    {recentPosts.map((recent) => (
+                      <Link key={recent.id} to={`/blog/${recent.slug}`} className="group block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all">
+                        {recent.image_url && (
+                          <div className="aspect-[16/9] w-full bg-gray-100 overflow-hidden">
+                            <img 
+                              src={recent.image_url} 
+                              alt={recent.title} 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                        )}
+                        <div className="p-5">
+                          <h4 className="font-serif font-bold text-gray-900 group-hover:text-blue-600 leading-snug line-clamp-2 mb-2 transition-colors">
+                            {recent.title}
+                          </h4>
+                          <p className="text-xs text-gray-500 font-medium">
+                            {format(new Date(recent.created_at), 'MMM d, yyyy')}
+                          </p>
+                        </div>
+                      </Link>
                     ))}
                   </div>
                 </div>
-              )}
-            </div>
-          </header>
+              </aside>
+            )}
 
-          {post.image_url && (
-            <div className="mb-14 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-              <img 
-                src={post.image_url} 
-                alt={post.title} 
-                className="w-full h-auto max-h-[500px] object-cover"
-              />
-            </div>
-          )}
-
-          <div className="bg-white p-8 sm:p-12 rounded-3xl shadow-sm border border-gray-100 mb-16">
-            <MarkdownRenderer content={post.content} />
           </div>
-          
         </div>
       </article>
     </>

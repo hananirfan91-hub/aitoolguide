@@ -59,7 +59,7 @@ export default function Blog() {
           ) : (
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {posts.map((post) => (
-                <article key={post.id} className="group flex flex-col bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all">
+                <article key={post.id} className="group relative flex flex-col bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all">
                   {post.image_url && (
                     <div className="aspect-[16/9] w-full overflow-hidden bg-gray-100">
                       <img 
@@ -71,7 +71,7 @@ export default function Blog() {
                   )}
                   <div className="p-8 flex-1 flex flex-col">
                     <div className="flex items-center gap-x-4 text-xs mb-4">
-                      <time dateTime={post.created_at} className="text-gray-500 font-medium">
+                      <time dateTime={post.created_at} className="text-gray-500 font-medium z-10">
                         {format(new Date(post.created_at), 'MMM d, yyyy')}
                       </time>
                       {post.tags && post.tags[0] && (
