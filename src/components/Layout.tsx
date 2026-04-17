@@ -53,9 +53,7 @@ export function Layout() {
           <div className="flex justify-between items-center h-20">
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-2 group">
-                <span className="bg-gray-900 text-white p-1.5 rounded-lg max-w-fit shadow-md group-hover:bg-blue-600 transition-colors">
-                 <Wrench className="w-6 h-6" />
-                </span>
+                <img src="/logo.svg" alt="AIToolGuide Logo" className="w-8 h-8 drop-shadow-sm group-hover:scale-105 transition-transform" />
                 AIToolGuide
               </Link>
             </div>
@@ -204,10 +202,8 @@ export function Layout() {
             
             {/* Brand Column */}
             <div className="space-y-6">
-              <Link to="/" className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-                <span className="bg-white text-gray-900 p-1.5 rounded-lg shadow-sm">
-                 <Wrench className="w-6 h-6" />
-                </span>
+              <Link to="/" className="text-2xl font-bold tracking-tight text-white flex items-center gap-2 group">
+                <img src="/logo.svg" alt="AIToolGuide Logo" className="w-8 h-8 rounded-lg outline outline-2 outline-white/20 group-hover:scale-105 transition-transform" />
                 AIToolGuide
               </Link>
               <p className="text-sm text-gray-400 leading-relaxed max-w-xs">

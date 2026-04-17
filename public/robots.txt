@@ -1,9 +1,4 @@
 User-agent: *
 Allow: /
 
-# Disallow private or non-essential paths
-Disallow: /admin
-Disallow: /auth
-
-# Sitemap reference
 Sitemap: https://aitoolguide.vercel.app/sitemap.xml

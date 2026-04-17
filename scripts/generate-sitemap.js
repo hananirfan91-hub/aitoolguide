@@ -72,8 +72,15 @@ async function generateSitemap() {
     fs.mkdirSync(publicDir);
   }
 
+  // Also drop a quick robots.txt to ensure Google crawls correctly
+  const robotsTxt = `User-agent: *
+Allow: /
+
+Sitemap: https://aitoolguide.vercel.app/sitemap.xml`;
+
+  fs.writeFileSync(path.join(publicDir, 'robots.txt'), robotsTxt);
   fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), sitemapContent);
-  console.log('sitemap.xml generated successfully!');
+  console.log('sitemap.xml and robots.txt generated successfully!');
 }
 
 generateSitemap();
