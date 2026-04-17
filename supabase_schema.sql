@@ -15,10 +15,19 @@ create table if not exists public.blogs (
   published boolean default true
 );
 
+-- Ensure image_url exists if table was already created without it
+alter table public.blogs add column if not exists image_url text;
+
 -- 2. Enable Row Level Security
 alter table public.blogs enable row level security;
 
--- 3. Create access policies
+-- 3. Drop existing policies to enforce new ones safely
+drop policy if exists "Public blogs are viewable by everyone." on public.blogs;
+drop policy if exists "Admin can insert" on public.blogs;
+drop policy if exists "Admin can update" on public.blogs;
+drop policy if exists "Admin can delete" on public.blogs;
+
+-- 4. Create access policies
 -- ANYONE can read published blogs
 create policy "Public blogs are viewable by everyone."
   on public.blogs for select
@@ -26,20 +35,30 @@ create policy "Public blogs are viewable by everyone."
 
 -- ONLY the specified admin emails can insert/update/delete
 create policy "Admin can insert" on public.blogs for insert
-  with check (auth.jwt() ->> 'email' in ('hananuk501@gmil.com', 'hananuk501@gmail.com'));
+  with check (auth.jwt() ->> 'email' = 'hananuk501@gmail.com');
 
 create policy "Admin can update" on public.blogs for update
-  using (auth.jwt() ->> 'email' in ('hananuk501@gmil.com', 'hananuk501@gmail.com'));
+  using (auth.jwt() ->> 'email' = 'hananuk501@gmail.com');
 
 create policy "Admin can delete" on public.blogs for delete
-  using (auth.jwt() ->> 'email' in ('hananuk501@gmil.com', 'hananuk501@gmail.com'));
+  using (auth.jwt() ->> 'email' = 'hananuk501@gmail.com');
 
--- 4. Setup Storage for Blog Images
+-- 5. Setup Storage for Blog Images
 insert into storage.buckets (id, name, public) values ('blog-images', 'blog-images', true)
 ON CONFLICT (id) DO NOTHING;
+
+-- Drop prior storage policies
+drop policy if exists "Images public access" on storage.objects;
+drop policy if exists "Admin can upload images" on storage.objects;
 
 create policy "Images public access" on storage.objects for select
 using (bucket_id = 'blog-images');
 
 create policy "Admin can upload images" on storage.objects for insert
-with check (bucket_id = 'blog-images' AND auth.jwt() ->> 'email' in ('hananuk501@gmil.com', 'hananuk501@gmail.com'));
+with check (bucket_id = 'blog-images' AND auth.jwt() ->> 'email' = 'hananuk501@gmail.com');
+
+create policy "Admin can update images" on storage.objects for update
+using (bucket_id = 'blog-images' AND auth.jwt() ->> 'email' = 'hananuk501@gmail.com');
+
+create policy "Admin can delete images" on storage.objects for delete
+using (bucket_id = 'blog-images' AND auth.jwt() ->> 'email' = 'hananuk501@gmail.com');
