@@ -9,6 +9,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { Layout } from './components/Layout';
 import Home from './pages/Home';
 import Tools from './pages/Tools';
+import ToolDetail from './pages/ToolDetail';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import About from './pages/About';
@@ -30,6 +31,7 @@ export default function App() {
               <Route index element={<Home />} />
               <Route path="home" element={<Home />} />
               <Route path="tools" element={<Tools />} />
+              <Route path="tool/:id" element={<ToolDetail />} />
               <Route path="blog" element={<Blog />} />
               <Route path="blog/:slug" element={<BlogPost />} />
               <Route path="about" element={<About />} />
