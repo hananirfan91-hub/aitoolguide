@@ -255,9 +255,9 @@ export function Layout() {
               <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-6">Legal</h3>
               <ul className="space-y-4">
                 <li><Link to="/contact" className="text-sm hover:text-white transition-colors">Contact Us</Link></li>
-                <li><a href="#" className="text-sm hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="text-sm hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="text-sm hover:text-white transition-colors">Cookie Policy</a></li>
+                <li><Link to="/privacy" className="text-sm hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="text-sm hover:text-white transition-colors">Terms of Service</Link></li>
+                <li><Link to="/cookies" className="text-sm hover:text-white transition-colors">Cookie Policy</Link></li>
               </ul>
             </div>
 

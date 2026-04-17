@@ -16,6 +16,10 @@ import Contact from './pages/Contact';
 import Admin from './pages/Admin';
 import Auth from './pages/Auth';
 
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
+import Cookies from './pages/Cookies';
+
 export default function App() {
   return (
     <HelmetProvider>
@@ -32,6 +36,9 @@ export default function App() {
               <Route path="contact" element={<Contact />} />
               <Route path="admin" element={<Admin />} />
               <Route path="auth" element={<Auth />} />
+              <Route path="privacy" element={<Privacy />} />
+              <Route path="terms" element={<Terms />} />
+              <Route path="cookies" element={<Cookies />} />
             </Route>
           </Routes>
         </Router>

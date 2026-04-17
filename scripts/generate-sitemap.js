@@ -21,6 +21,9 @@ async function generateSitemap() {
     { loc: '/blog', changefreq: 'daily', priority: 0.9 },
     { loc: '/about', changefreq: 'monthly', priority: 0.7 },
     { loc: '/contact', changefreq: 'monthly', priority: 0.6 },
+    { loc: '/privacy', changefreq: 'yearly', priority: 0.3 },
+    { loc: '/terms', changefreq: 'yearly', priority: 0.3 },
+    { loc: '/cookies', changefreq: 'yearly', priority: 0.3 },
   ];
 
   let dynamicPages = [];
