@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
-import { Image, Save, ArrowLeft, Wand2, RefreshCw, MessageSquare, Wrench } from 'lucide-react';
+import { Image, Save, ArrowLeft, Wand2, RefreshCw, MessageSquare, Wrench, Edit, Trash2, List } from 'lucide-react';
 import { generateSEODescription } from '../lib/gemini';
 
 export default function Admin() {
@@ -19,6 +19,7 @@ export default function Admin() {
   const [uploading, setUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGeneratingSEO, setIsGeneratingSEO] = useState(false);
+  const [editingBlogId, setEditingBlogId] = useState<string | null>(null);
 
   // Tools Form State
   const [toolName, setToolName] = useState('');
@@ -27,18 +28,36 @@ export default function Admin() {
   const [toolHowToUse, setToolHowToUse] = useState('');
   const [toolUrl, setToolUrl] = useState('');
   const [toolIsFree, setToolIsFree] = useState(false);
+  const [editingToolId, setEditingToolId] = useState<string | null>(null);
 
-  // SEO Audit State & Messages
-  const [existingPosts, setExistingPosts] = useState<any[]>([]);
+  // Management State & Messages
+  const [existingBlogs, setExistingBlogs] = useState<any[]>([]);
+  const [existingTools, setExistingTools] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(false);
-  const [activeTab, setActiveTab] = useState<'create_blog' | 'create_tool' | 'messages'>('create_blog');
+  const [activeTab, setActiveTab] = useState<'create_blog' | 'manage_blogs' | 'create_tool' | 'manage_tools' | 'messages'>('create_blog');
 
   useEffect(() => {
     if (isAdmin) {
+      if (activeTab === 'manage_blogs') fetchExistingBlogs();
+      if (activeTab === 'manage_tools') fetchExistingTools();
       if (activeTab === 'messages') fetchMessages();
     }
   }, [isAdmin, activeTab]);
+
+  const fetchExistingBlogs = async () => {
+    setLoadingData(true);
+    const { data, error } = await supabase.from('blogs').select('*').order('created_at', { ascending: false });
+    if (data) setExistingBlogs(data);
+    setLoadingData(false);
+  };
+
+  const fetchExistingTools = async () => {
+    setLoadingData(true);
+    const { data, error } = await supabase.from('tools').select('*').order('created_at', { ascending: false });
+    if (data) setExistingTools(data);
+    setLoadingData(false);
+  };
 
   const fetchMessages = async () => {
     setLoadingData(true);
@@ -56,6 +75,45 @@ export default function Admin() {
     const generated = await generateSEODescription(content, keywords);
     setExcerpt(generated);
     setIsGeneratingSEO(false);
+  };
+
+  const handleEditBlog = (blog: any) => {
+    setEditingBlogId(blog.id);
+    setTitle(blog.title);
+    setSlug(blog.slug);
+    setExcerpt(blog.excerpt);
+    setContent(blog.content);
+    setKeywords(blog.keywords);
+    setTags(blog.tags?.join(', ') || '');
+    setImageUrl(blog.image_url);
+    setActiveTab('create_blog');
+  };
+
+  const handleDeleteBlog = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this blog post?')) {
+      const { error } = await supabase.from('blogs').delete().eq('id', id);
+      if (error) alert("Error deleting: " + error.message);
+      else fetchExistingBlogs();
+    }
+  };
+
+  const handleEditTool = (tool: any) => {
+    setEditingToolId(tool.id);
+    setToolName(tool.name);
+    setToolCategory(tool.category);
+    setToolDescription(tool.description);
+    setToolHowToUse(tool.how_to_use);
+    setToolUrl(tool.url);
+    setToolIsFree(tool.is_free);
+    setActiveTab('create_tool');
+  };
+
+  const handleDeleteTool = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this AI Tool?')) {
+      const { error } = await supabase.from('tools').delete().eq('id', id);
+      if (error) alert("Error deleting: " + error.message);
+      else fetchExistingTools();
+    }
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,7 +146,7 @@ export default function Admin() {
     }
   };
 
-  const handleCreatePost = async (e: React.FormEvent) => {
+  const handleCreateOrUpdatePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     setIsSubmitting(true);
@@ -96,50 +154,66 @@ export default function Admin() {
     const tagsArray = tags.split(',').map(tag => tag.trim());
     const finalSlug = slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
-    const { error } = await supabase.from('blogs').insert([
-      {
-        title,
-        slug: finalSlug,
-        excerpt,
-        content,
-        keywords,
-        tags: tagsArray,
-        image_url: imageUrl,
-        author_email: user.email,
-        published: true, 
-      }
-    ]);
+    const postData = {
+      title,
+      slug: finalSlug,
+      excerpt,
+      content,
+      keywords,
+      tags: tagsArray,
+      image_url: imageUrl,
+      author_email: user.email,
+      published: true, 
+    };
+
+    let error;
+    if (editingBlogId) {
+      const { error: updateError } = await supabase.from('blogs').update(postData).eq('id', editingBlogId);
+      error = updateError;
+    } else {
+      const { error: insertError } = await supabase.from('blogs').insert([postData]);
+      error = insertError;
+    }
 
     if (error) {
       alert("Error saving post: " + error.message);
     } else {
-      alert("Post created successfully!");
-      setTitle(''); setSlug(''); setExcerpt(''); setContent(''); setKeywords(''); setTags(''); setImageUrl('');
+      alert(editingBlogId ? "Post updated successfully!" : "Post created successfully!");
+      setTitle(''); setSlug(''); setExcerpt(''); setContent(''); setKeywords(''); setTags(''); setImageUrl(''); setEditingBlogId(null);
+      if (editingBlogId) setActiveTab('manage_blogs');
     }
     setIsSubmitting(false);
   };
 
-  const handleCreateTool = async (e: React.FormEvent) => {
+  const handleCreateOrUpdateTool = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     setIsSubmitting(true);
 
-    const { error } = await supabase.from('tools').insert([
-      {
-        name: toolName,
-        category: toolCategory,
-        description: toolDescription,
-        how_to_use: toolHowToUse,
-        url: toolUrl,
-        is_free: toolIsFree
-      }
-    ]);
+    const toolData = {
+      name: toolName,
+      category: toolCategory,
+      description: toolDescription,
+      how_to_use: toolHowToUse,
+      url: toolUrl,
+      is_free: toolIsFree
+    };
+
+    let error;
+    if (editingToolId) {
+      const { error: updateErr } = await supabase.from('tools').update(toolData).eq('id', editingToolId);
+      error = updateErr;
+    } else {
+      const { error: insertErr } = await supabase.from('tools').insert([toolData]);
+      error = insertErr;
+    }
 
     if (error) {
       alert("Error saving tool: " + error.message);
     } else {
-      alert("Tool created successfully!");
-      setToolName(''); setToolCategory(''); setToolDescription(''); setToolHowToUse(''); setToolUrl(''); setToolIsFree(false);
+      alert(editingToolId ? "Tool updated successfully!" : "Tool created successfully!");
+      setToolName(''); setToolCategory(''); setToolDescription(''); setToolHowToUse(''); setToolUrl(''); setToolIsFree(false); setEditingToolId(null);
+      if (editingToolId) setActiveTab('manage_tools');
     }
     setIsSubmitting(false);
   };
@@ -169,16 +243,16 @@ export default function Admin() {
         </div>
         <div className="flex flex-wrap bg-gray-100 p-1.5 rounded-xl gap-1">
           <button 
-            onClick={() => setActiveTab('create_blog')}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeTab === 'create_blog' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+            onClick={() => setActiveTab('manage_blogs')}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5 ${['manage_blogs', 'create_blog'].includes(activeTab) ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
           >
-            Create Blog Post
+            <List className="w-4 h-4"/> Blogs
           </button>
           <button 
-            onClick={() => setActiveTab('create_tool')}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5 ${activeTab === 'create_tool' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+            onClick={() => setActiveTab('manage_tools')}
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5 ${['manage_tools', 'create_tool'].includes(activeTab) ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
           >
-            <Wrench className="w-4 h-4"/> Add AI Tool
+            <Wrench className="w-4 h-4"/> AI Tools
           </button>
           <button 
             onClick={() => setActiveTab('messages')}
@@ -191,8 +265,13 @@ export default function Admin() {
 
       {activeTab === 'create_blog' && (
         <div className="bg-white rounded-3xl shadow-sm border border-purple-100 p-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Create New Blog Post</h2>
-          <form onSubmit={handleCreatePost} className="space-y-6">
+          <div className="flex items-center gap-4 mb-6">
+            <button onClick={() => setActiveTab('manage_blogs')} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
+               <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h2 className="text-xl font-bold text-gray-900">{editingBlogId ? 'Edit Blog Post' : 'Create New Blog Post'}</h2>
+          </div>
+          <form onSubmit={handleCreateOrUpdatePost} className="space-y-6">
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -251,17 +330,72 @@ export default function Admin() {
 
             <div className="border-t border-gray-100 pt-6">
               <button type="submit" disabled={isSubmitting} className="w-full flex justify-center items-center px-4 py-4 rounded-xl shadow-sm font-semibold text-white bg-gray-900 hover:bg-gray-800 transition-colors">
-                <Save className="w-5 h-5 mr-3" /> Publish Blog Post
+                <Save className="w-5 h-5 mr-3" /> {editingBlogId ? 'Update Blog Post' : 'Publish Blog Post'}
               </button>
             </div>
           </form>
         </div>
       )}
 
+      {/* Tools Management Section */}
+      {activeTab === 'manage_tools' && (
+        <div className="bg-white rounded-3xl shadow-sm border border-blue-100 p-8">
+           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+             <h2 className="text-xl font-bold text-gray-900">Manage Tools</h2>
+             <div className="flex gap-2">
+               <button onClick={fetchExistingTools} className="px-3 py-2 bg-gray-50 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 transition-colors flex items-center shadow-sm">
+                  <RefreshCw className="w-4 h-4 mr-1.5" /> Refresh
+               </button>
+               <button 
+                 onClick={() => {
+                   setEditingToolId(null); setToolName(''); setToolCategory(''); setToolDescription(''); setToolHowToUse(''); setToolUrl(''); setToolIsFree(false);
+                   setActiveTab('create_tool');
+                 }} 
+                 className="px-4 py-2 text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors shadow-sm"
+               >
+                 + Add New Tool
+               </button>
+             </div>
+           </div>
+           
+           {loadingData ? (
+             <div className="text-center py-10 text-gray-500">Loading tools...</div>
+           ) : existingTools.length === 0 ? (
+             <div className="text-center py-10 text-gray-500 bg-gray-50 rounded-2xl border border-gray-100">No AI Tools found.</div>
+           ) : (
+             <div className="space-y-4">
+               {existingTools.map((tool) => (
+                 <div key={tool.id} className="border border-gray-200 rounded-2xl p-5 bg-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                   <div>
+                     <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                       {tool.name} <span className="text-xs font-normal px-2 py-0.5 bg-gray-200 rounded-full">{tool.category}</span>
+                     </h3>
+                     <p className="text-sm text-gray-500 line-clamp-1">{tool.description}</p>
+                   </div>
+                   <div className="flex gap-2 shrink-0">
+                     <button onClick={() => handleEditTool(tool)} className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                       <Edit className="w-4 h-4" />
+                     </button>
+                     <button onClick={() => handleDeleteTool(tool.id)} className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
+                       <Trash2 className="w-4 h-4" />
+                     </button>
+                   </div>
+                 </div>
+               ))}
+             </div>
+           )}
+        </div>
+      )}
+
       {activeTab === 'create_tool' && (
         <div className="bg-white rounded-3xl shadow-sm border border-blue-100 p-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Add New AI Tool</h2>
-          <form onSubmit={handleCreateTool} className="space-y-6">
+          <div className="flex items-center gap-4 mb-6">
+            <button onClick={() => setActiveTab('manage_tools')} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
+               <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h2 className="text-xl font-bold text-gray-900">{editingToolId ? 'Edit AI Tool' : 'Add New AI Tool'}</h2>
+          </div>
+          <form onSubmit={handleCreateOrUpdateTool} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Tool Name</label>
@@ -296,7 +430,7 @@ export default function Admin() {
 
             <div className="border-t border-gray-100 pt-6">
               <button type="submit" disabled={isSubmitting} className="w-full flex justify-center items-center px-4 py-4 rounded-xl shadow-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors">
-                <Save className="w-5 h-5 mr-3" /> Save AI Tool
+                <Save className="w-5 h-5 mr-3" /> {editingToolId ? 'Update AI Tool' : 'Save AI Tool'}
               </button>
             </div>
           </form>
