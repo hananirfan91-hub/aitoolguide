@@ -6,6 +6,9 @@ import { Link } from 'react-router-dom';
 
 export default function Tools() {
   const [tools, setTools] = useState<any[]>([]);
+  const [filteredTools, setFilteredTools] = useState<any[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>('All');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,13 +23,29 @@ export default function Tools() {
         .order('created_at', { ascending: false });
         
       if (error) throw error;
-      setTools(data || []);
+      
+      const toolsData = data || [];
+      setTools(toolsData);
+      setFilteredTools(toolsData);
+      
+      // Extract unique categories
+      const uniqueCats = Array.from(new Set(toolsData.map(t => t.category).filter(Boolean))) as string[];
+      setCategories(uniqueCats.sort());
+      
     } catch (error) {
       console.error('Error fetching tools:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (activeCategory === 'All') {
+      setFilteredTools(tools);
+    } else {
+      setFilteredTools(tools.filter(t => t.category === activeCategory));
+    }
+  }, [activeCategory, tools]);
 
   return (
     <>
@@ -48,18 +67,46 @@ export default function Tools() {
             </p>
           </div>
 
+          {!loading && categories.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-12">
+              <button
+                onClick={() => setActiveCategory('All')}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  activeCategory === 'All' 
+                    ? 'bg-gray-900 text-white' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                All Tools
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    activeCategory === cat 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-100'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
+
           {loading ? (
              <div className="flex justify-center py-20">
                <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
              </div>
-          ) : tools.length === 0 ? (
+          ) : filteredTools.length === 0 ? (
              <div className="text-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
                <h3 className="text-lg font-medium text-gray-900">No tools found</h3>
                <p className="text-gray-500 mt-2">Check back later for new AI tools.</p>
              </div>
           ) : (
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {tools.map((tool) => (
+              {filteredTools.map((tool) => (
                 <div key={tool.id} className="group relative flex flex-col bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all">
                   <div className="p-8 flex-1 flex flex-col">
                     <div className="flex justify-between items-start mb-4">

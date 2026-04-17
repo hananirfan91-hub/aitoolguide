@@ -198,16 +198,19 @@ export function Layout() {
       {/* Professional Footer */}
       <footer className="bg-gray-900 bg-gradient-to-b from-gray-900 to-black text-gray-300 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
             
             {/* Brand Column */}
-            <div className="space-y-6">
+            <div className="space-y-6 lg:col-span-2">
               <Link to="/" className="text-2xl font-bold tracking-tight text-white flex items-center gap-2 group">
                 <img src="/logo.svg" alt="AIToolGuide Logo" className="w-8 h-8 rounded-lg outline outline-2 outline-white/20 group-hover:scale-105 transition-transform" />
                 AIToolGuide
               </Link>
               <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
                 Demystifying Artificial Intelligence for students and beginners. Learn the tools that shape the future in plain English.
+              </p>
+              <p className="text-sm font-semibold text-gray-300">
+                Created by Hanan Irfan
               </p>
               <div className="flex space-x-4">
                 <a href="https://instagram.com/tearswithhanan/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
@@ -241,8 +244,20 @@ export function Layout() {
               <ul className="space-y-4">
                 <li><Link to="/" className="text-sm hover:text-white transition-colors">Home</Link></li>
                 <li><Link to="/tools" className="text-sm hover:text-white transition-colors">AI Tools Directory</Link></li>
+                <li><a href="https://aicoursebyhananirfan.vercel.app" target="_blank" rel="noopener noreferrer" className="text-sm hover:text-blue-400 transition-colors font-semibold text-blue-500">AI Dev Course</a></li>
                 <li><Link to="/blog" className="text-sm hover:text-white transition-colors">Guides & Tutorials</Link></li>
                 <li><Link to="/about" className="text-sm hover:text-white transition-colors">Our Mission</Link></li>
+              </ul>
+            </div>
+
+            {/* Top Categories */}
+            <div>
+              <h3 className="text-sm font-semibold text-white tracking-wider uppercase mb-6">Top AI Tools</h3>
+              <ul className="space-y-4">
+                <li><Link to="/category/ai-writing-tools" className="text-sm hover:text-white transition-colors">AI Writing Tools</Link></li>
+                <li><Link to="/category/ai-design-tools" className="text-sm hover:text-white transition-colors">AI Design Tools</Link></li>
+                <li><Link to="/category/ai-productivity-tools" className="text-sm hover:text-white transition-colors">AI Productivity Tools</Link></li>
+                <li><Link to="/category/ai-for-students" className="text-sm hover:text-white transition-colors">Best AI for Students</Link></li>
               </ul>
             </div>
 

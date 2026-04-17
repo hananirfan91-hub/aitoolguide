@@ -11,6 +11,7 @@ export default function BlogPost() {
   const navigate = useNavigate();
   const [post, setPost] = useState<BlogPostType | null>(null);
   const [recentPosts, setRecentPosts] = useState<BlogPostType[]>([]);
+  const [featuredTools, setFeaturedTools] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
@@ -61,10 +62,19 @@ export default function BlogPost() {
         .eq('published', true)
         .neq('slug', slug)
         .order('created_at', { ascending: false })
-        .limit(3);
+        .limit(2);
 
       if (recentData) {
         setRecentPosts(recentData);
+      }
+
+      const { data: toolsData } = await supabase
+        .from('tools')
+        .select('id, name, description')
+        .limit(2);
+        
+      if (toolsData) {
+        setFeaturedTools(toolsData);
       }
 
       setLoading(false);
@@ -177,37 +187,63 @@ export default function BlogPost() {
               </div>
             </div>
 
-            {/* Aside for related posts */}
-            {recentPosts.length > 0 && (
-              <aside className="lg:col-span-1">
-                <div className="sticky top-32">
-                  <h3 className="text-xl font-bold font-serif text-gray-900 mb-6">Read More Guides</h3>
-                  <div className="space-y-6">
-                    {recentPosts.map((recent) => (
-                      <Link key={recent.id} to={`/blog/${recent.slug}`} className="group block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all">
-                        {recent.image_url && (
-                          <div className="aspect-[16/9] w-full bg-gray-100 overflow-hidden">
-                            <img 
-                              src={recent.image_url} 
-                              alt={recent.title} 
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
+            {/* Aside for related content */}
+            <aside className="lg:col-span-1">
+              <div className="sticky top-32 space-y-10">
+                
+                {recentPosts.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-bold font-serif text-gray-900 mb-6">Read More Guides</h3>
+                    <div className="space-y-6">
+                      {recentPosts.map((recent) => (
+                        <Link key={recent.id} to={`/blog/${recent.slug}`} className="group block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all">
+                          {recent.image_url && (
+                            <div className="aspect-[16/9] w-full bg-gray-100 overflow-hidden">
+                              <img 
+                                src={recent.image_url} 
+                                alt={recent.title} 
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                            </div>
+                          )}
+                          <div className="p-5">
+                            <h4 className="font-serif font-bold text-gray-900 group-hover:text-blue-600 leading-snug line-clamp-2 mb-2 transition-colors">
+                              {recent.title}
+                            </h4>
+                            <p className="text-xs text-gray-500 font-medium">
+                              {format(new Date(recent.created_at), 'MMM d, yyyy')}
+                            </p>
                           </div>
-                        )}
-                        <div className="p-5">
-                          <h4 className="font-serif font-bold text-gray-900 group-hover:text-blue-600 leading-snug line-clamp-2 mb-2 transition-colors">
-                            {recent.title}
-                          </h4>
-                          <p className="text-xs text-gray-500 font-medium">
-                            {format(new Date(recent.created_at), 'MMM d, yyyy')}
-                          </p>
-                        </div>
-                      </Link>
-                    ))}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </aside>
-            )}
+                )}
+
+                {featuredTools.length > 0 && (
+                  <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 px-2">Essential AI Tools</h3>
+                    <div className="space-y-3">
+                      {featuredTools.map((tool) => (
+                        <Link 
+                          key={tool.id} 
+                          to={`/tool/${tool.id}`} 
+                          className="block bg-white p-4 rounded-2xl border border-gray-200 hover:border-gray-300 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition-all group"
+                        >
+                          <h4 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors mb-1">
+                            {tool.name}
+                          </h4>
+                          <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                            {tool.description}
+                          </p>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            </aside>
 
           </div>
         </div>

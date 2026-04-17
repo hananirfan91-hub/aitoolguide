@@ -9,6 +9,7 @@ export default function ToolDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [tool, setTool] = useState<any | null>(null);
+  const [relatedBlogs, setRelatedBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
@@ -32,28 +33,38 @@ export default function ToolDetail() {
   };
 
   useEffect(() => {
-    async function fetchTool() {
+    async function fetchData() {
       if (!id) return;
       
       window.scrollTo(0, 0);
       
-      const { data, error } = await supabase
+      const { data: toolData, error: toolError } = await supabase
         .from('tools')
         .select('*')
         .eq('id', id)
         .single();
         
-      if (error || !data) {
-        console.error('Error fetching tool:', error);
+      if (toolError || !toolData) {
+        console.error('Error fetching tool:', toolError);
         navigate('/tools', { replace: true });
         return;
       }
       
-      setTool(data);
+      setTool(toolData);
+
+      const { data: blogsData } = await supabase
+        .from('blogs')
+        .select('id, title, slug')
+        .eq('published', true)
+        .order('created_at', { ascending: false })
+        .limit(3);
+        
+      if (blogsData) setRelatedBlogs(blogsData);
+
       setLoading(false);
     }
     
-    fetchTool();
+    fetchData();
   }, [id, navigate]);
 
   if (loading) {
@@ -142,7 +153,7 @@ export default function ToolDetail() {
 
             </div>
             
-            <aside className="md:col-span-1">
+            <aside className="md:col-span-1 space-y-8">
               <div className="bg-gray-900 rounded-3xl p-8 text-center text-white sticky top-32">
                 <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <ExternalLink className="w-8 h-8 text-white" />
@@ -160,6 +171,25 @@ export default function ToolDetail() {
                   Go to Website
                 </a>
               </div>
+
+              {relatedBlogs.length > 0 && (
+                <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm sticky top-[380px]">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4 px-2">Related Guides</h3>
+                  <div className="space-y-2">
+                    {relatedBlogs.map((blog) => (
+                      <Link 
+                        key={blog.id} 
+                        to={`/blog/${blog.slug}`}
+                        className="block px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors group"
+                      >
+                        <h4 className="font-medium text-gray-800 group-hover:text-blue-600 transition-colors line-clamp-2">
+                          {blog.title}
+                        </h4>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
             </aside>
           </div>
           

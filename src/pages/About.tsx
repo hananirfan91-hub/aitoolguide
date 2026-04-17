@@ -51,6 +51,11 @@ export default function About() {
               </li>
             </ul>
 
+            <h2 className="text-2xl font-bold text-gray-900 mt-12 mb-4">About the Creator</h2>
+            <p className="mb-6">
+              AIToolGuide was created by <strong className="text-gray-900">Hanan Irfan</strong>. My goal is to make AI accessible and easy to learn for everyone. If you're interested in going beyond using AI tools and want to learn how to actively develop your own artificial intelligence applications, check out my comprehensive <a href="https://aicoursebyhananirfan.vercel.app" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-semibold hover:underline">AI Development Course</a>.
+            </p>
+
             <div className="bg-gray-50 rounded-2xl p-8 mt-12 text-center border border-gray-100">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Ready to start learning?</h3>
               <p className="mb-6 text-base">Check out our directory to find the best tools for your needs.</p>

@@ -403,7 +403,15 @@ export default function Admin() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Category</label>
-                <input required type="text" value={toolCategory} onChange={(e) => setToolCategory(e.target.value)} placeholder="e.g. AI Chat & Writing" className="mt-1 block w-full rounded-xl border border-gray-200 px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-blue-600" />
+                <input required list="categories" type="text" value={toolCategory} onChange={(e) => setToolCategory(e.target.value)} placeholder="e.g. AI Writing Tools" className="mt-1 block w-full rounded-xl border border-gray-200 px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-blue-600" />
+                <datalist id="categories">
+                  <option value="AI Writing Tools" />
+                  <option value="AI Design Tools" />
+                  <option value="AI Productivity Tools" />
+                  <option value="Best AI for Students" />
+                  <option value="AI Video Generators" />
+                  <option value="AI Coding Assistants" />
+                </datalist>
               </div>
             </div>
 
