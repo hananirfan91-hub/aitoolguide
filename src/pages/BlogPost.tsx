@@ -4,7 +4,7 @@ import { supabase, BlogPost as BlogPostType } from '../lib/supabase';
 import { SEO } from '../components/SEO';
 import { MarkdownRenderer } from '../components/MarkdownRenderer';
 import { format } from 'date-fns';
-import { ArrowLeft, Calendar, Tag, User } from 'lucide-react';
+import { ArrowLeft, Calendar, Tag, User, Share2, Check } from 'lucide-react';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -12,6 +12,26 @@ export default function BlogPost() {
   const [post, setPost] = useState<BlogPostType | null>(null);
   const [recentPosts, setRecentPosts] = useState<BlogPostType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: post?.title,
+          text: post?.excerpt,
+          url: url,
+        });
+      } catch (err) {
+        console.error('Share failed:', err);
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   useEffect(() => {
     async function fetchPostAndRecent() {
@@ -129,6 +149,16 @@ export default function BlogPost() {
                       </div>
                     </div>
                   )}
+
+                  <div className="ml-auto">
+                    <button 
+                      onClick={handleShare}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors shadow-sm"
+                    >
+                      {copied ? <Check className="w-4 h-4 text-green-600" /> : <Share2 className="w-4 h-4" />}
+                      {copied ? 'Copied Link' : 'Share'}
+                    </button>
+                  </div>
                 </div>
               </header>
 

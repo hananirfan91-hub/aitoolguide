@@ -1,8 +1,28 @@
+import { useEffect, useState } from 'react';
 import { SEO } from '../components/SEO';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Zap, PenTool, Sparkles } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 export default function Home() {
+  const [latestBlogs, setLatestBlogs] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchLatestBlogs() {
+      const { data } = await supabase
+        .from('blogs')
+        .select('id, title, slug, excerpt')
+        .eq('published', true)
+        .order('created_at', { ascending: false })
+        .limit(3);
+        
+      if (data) {
+        setLatestBlogs(data);
+      }
+    }
+    fetchLatestBlogs();
+  }, []);
+
   const schema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -121,20 +141,20 @@ export default function Home() {
                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-blue-100 rounded-full opacity-50 blur-xl"></div>
                <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-purple-100 rounded-full opacity-50 blur-xl"></div>
                <h3 className="text-xl font-semibold mb-4 relative z-10">Latest Blog Posts</h3>
-               <ul className="space-y-4 relative z-10 w-full">
-                  <li className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:border-gray-300 transition-colors cursor-pointer group">
-                    <Link to="/blog" className="block">
-                      <h4 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">How to use ChatGPT for students step by step</h4>
-                      <p className="text-sm text-gray-500 mt-1">Learn the perfect prompts for studying...</p>
-                    </Link>
-                  </li>
-                  <li className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:border-gray-300 transition-colors cursor-pointer group">
-                    <Link to="/blog" className="block">
-                      <h4 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">Best free AI tools in 2026</h4>
-                      <p className="text-sm text-gray-500 mt-1">A curated list of zero-cost productivity boosters...</p>
-                    </Link>
-                  </li>
-               </ul>
+               {latestBlogs.length === 0 ? (
+                 <p className="text-sm text-gray-500 relative z-10">No posts published yet.</p>
+               ) : (
+                 <ul className="space-y-4 relative z-10 w-full">
+                    {latestBlogs.map((blog) => (
+                      <li key={blog.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:border-gray-300 transition-colors cursor-pointer group">
+                        <Link to={`/blog/${blog.slug}`} className="block">
+                          <h4 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">{blog.title}</h4>
+                          <p className="text-sm text-gray-500 mt-1 line-clamp-2">{blog.excerpt}</p>
+                        </Link>
+                      </li>
+                    ))}
+                 </ul>
+               )}
             </div>
           </div>
         </div>
