@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Menu, X, BookOpen, Wrench, Info, Mail, Github, Twitter, Linkedin, Send, User, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, X, BookOpen, Wrench, Info, Mail, Youtube, Twitter, Facebook, Instagram, Send, User, LogOut, ChevronDown } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -214,17 +214,27 @@ export function Layout() {
                 Demystifying Artificial Intelligence for students and beginners. Learn the tools that shape the future in plain English.
               </p>
               <div className="flex space-x-4">
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <span className="sr-only">Twitter</span>
+                <a href="https://instagram.com/tearswithhanan/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                  <span className="sr-only">Instagram</span>
+                  <Instagram className="h-5 w-5" />
+                </a>
+                <a href="https://tiktok.com/@pathan_x_babarian565" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                  <span className="sr-only">TikTok</span>
+                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2-1.74 2.89 2.89 0 0 1 2.89-2.89 2.88 2.88 0 0 1 1.54.45V8.12a6.32 6.32 0 0 0-1.54-.19 6.34 6.34 0 0 0 0 12.68 6.34 6.34 0 0 0 6.33-6.33V8.87a8.21 8.21 0 0 0 4.7 1.52V6.9a4.8 4.8 0 0 1-1.5-.21z"/>
+                  </svg>
+                </a>
+                <a href="https://facebook.com/HananIrfan001" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                  <span className="sr-only">Facebook</span>
+                  <Facebook className="h-5 w-5" />
+                </a>
+                <a href="https://x.com/hananirfan91" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                  <span className="sr-only">Twitter (X)</span>
                   <Twitter className="h-5 w-5" />
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <span className="sr-only">GitHub</span>
-                  <Github className="h-5 w-5" />
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <span className="sr-only">LinkedIn</span>
-                  <Linkedin className="h-5 w-5" />
+                <a href="https://www.youtube.com/@ancientmystery-0" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                  <span className="sr-only">YouTube</span>
+                  <Youtube className="h-5 w-5" />
                 </a>
               </div>
             </div>

@@ -23,7 +23,7 @@ async function generateSitemap() {
     { loc: '/contact', changefreq: 'monthly', priority: 0.6 },
   ];
 
-  let dynamicPages: Array<{ loc: string; changefreq: string; priority: number; lastmod: string }> = [];
+  let dynamicPages = [];
 
   try {
     const { data: posts, error } = await supabase
