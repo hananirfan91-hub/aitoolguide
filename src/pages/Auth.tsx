@@ -18,6 +18,19 @@ export default function Auth() {
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Client-side validation to prevent unnecessary slow network requests
+    if (password.length < 6) {
+      setErrorMsg('Password must be at least 6 characters long.');
+      return;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMsg('Please enter a valid email address.');
+      return;
+    }
+
     setLoading(true);
     setMessage('');
     setErrorMsg('');
@@ -126,8 +139,14 @@ export default function Auth() {
                   disabled={loading}
                   className="flex w-full justify-center rounded-xl bg-gray-900 px-3 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 transition-colors disabled:opacity-70 items-center"
                 >
-                  {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                  {isSignUp ? 'Sign up' : 'Sign in'}
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-3 animate-spin" />
+                      {isSignUp ? 'Creating your account...' : 'Authenticating...'}
+                    </>
+                  ) : (
+                    isSignUp ? 'Sign up' : 'Sign in'
+                  )}
                 </button>
               </div>
             </form>

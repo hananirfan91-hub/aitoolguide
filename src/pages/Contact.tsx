@@ -13,15 +13,31 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (message.length < 10) {
+      setErrorMsg('Please write a slightly longer message so we can better assist you.');
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMsg('');
 
     try {
+      // Simulate a small psychological delay so they know it processed if it's too fast
+      // But standard network latency usually covers this.
+      const startTime = Date.now();
+
       const { error } = await supabase.from('messages').insert([
         { name, email, message }
       ]);
       if (error) throw error;
       
+      const elapsedTime = Date.now() - startTime;
+      if (elapsedTime < 600) {
+        // Just enough to let the loading spinner register visually to avoid flashing
+        await new Promise(res => setTimeout(res, 600 - elapsedTime));
+      }
+
       setIsSuccess(true);
       setName('');
       setEmail('');
@@ -134,12 +150,12 @@ export default function Contact() {
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Sending...
+                        <Loader2 className="w-5 h-5 mr-3 animate-spin" />
+                        Connecting to server...
                       </>
                     ) : (
                       <>
-                        <Send className="w-4 h-4 mr-2" />
+                        <Send className="w-5 h-5 mr-3" />
                         Send Message
                       </>
                     )}
