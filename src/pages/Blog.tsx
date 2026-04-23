@@ -30,9 +30,9 @@ export default function Blog() {
   return (
     <>
       <SEO 
-        title="AI Tools Blog & Guides | AIToolGuide"
-        description="Read our latest blog posts on how to use AI tools for students. Tutorials, tips, and reviews of the best free AI apps."
-        keywords="how to use ChatGPT, AI tools for making presentations, AI education for beginners"
+        title="AI Tools Blog & Guides: Tutorials for Students & Beginners"
+        description="Read our latest blog posts on how to use AI tools for students. Tutorials, tips, and reviews of the best free artificial intelligence apps and software."
+        keywords="how to use ChatGPT, AI tools for making presentations, AI education for beginners, best AI blog 2026, artificial intelligence tutorials, guide to generative AI, student study hacks with AI, review of free AI software"
         url="https://aitoolguide.vercel.app/blog"
       />
       

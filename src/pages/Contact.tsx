@@ -52,8 +52,9 @@ export default function Contact() {
   return (
     <>
       <SEO 
-        title="Contact Us | AIToolGuide"
-        description="Get in touch with the AIToolGuide team. We'd love to hear your questions about AI tools."
+        title="Contact Us | AIToolGuide Support & Feedback"
+        description="Get in touch with the AIToolGuide team. We'd love to hear your questions about AI tools, software features, or requests for beginner tutorials."
+        keywords="contact AIToolGuide, request AI tool review, AI software feedback, artificial intelligence guide support"
         url="https://aitoolguide.vercel.app/contact"
       />
       

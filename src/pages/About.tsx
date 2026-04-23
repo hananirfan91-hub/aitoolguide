@@ -5,9 +5,9 @@ export default function About() {
   return (
     <>
       <SEO 
-        title="About Us | AIToolGuide"
-        description="Learn about AIToolGuide and our mission to provide AI education for beginners and make learning AI tools easy."
-        keywords="learn AI tools easily, AI education for beginners, about AIToolGuide"
+        title="About Us | AIToolGuide: Making Artificial Intelligence Simple"
+        description="Learn about AIToolGuide and our mission to provide AI education for beginners. We test, review, and explain top artificial intelligence software."
+        keywords="learn AI tools easily, AI education for beginners, about AIToolGuide, who created AIToolGuide, artificial intelligence for students, free AI resources, Hanan Irfan AI"
         url="https://aitoolguide.vercel.app/about"
       />
       

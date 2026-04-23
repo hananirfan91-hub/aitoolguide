@@ -50,9 +50,9 @@ export default function Tools() {
   return (
     <>
       <SEO 
-        title="Best AI Tools for Students | AIToolGuide"
-        description="Discover the best free AI tools in 2026 for students and beginners. Learn how to use ChatGPT, Canva AI, Grammarly, and Notion AI."
-        keywords="free AI tools 2026, best AI tools for students, ChatGPT tutorial, Canva AI, Grammarly AI"
+        title="AI Tools Directory 2026: Compare Free Artificial Intelligence Apps"
+        description="Browse our comprehensive directory of the best free AI tools for 2026. Compare top artificial intelligence apps for productivity, writing, and design."
+        keywords="AI tools directory, list of free artificial intelligence apps, compare AI software, best AI websites, student AI resources, top generative AI tools, AI software list updated 2026, AI tools online"
         url="https://aitoolguide.vercel.app/tools"
       />
       
@@ -63,7 +63,7 @@ export default function Tools() {
               AI Tools Directory
             </h1>
             <p className="text-xl text-gray-600">
-              A curated list of the best AI tools for students, creators, and beginners. Learn what they do and exactly how to use them to boost your productivity.
+              Browse our comprehensive list of the best AI software for students, creators, and professionals. Read detailed reviews and step-by-step guides for every artificial intelligence app.
             </p>
           </div>
 
@@ -149,6 +149,20 @@ export default function Tools() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Semantic SEO Text Block */}
+          {!loading && tools.length > 0 && (
+            <div className="mt-24 bg-white p-8 sm:p-12 rounded-3xl border border-gray-100 shadow-sm max-w-4xl mx-auto text-gray-600 space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900">Why Use Our AI Tools Directory?</h2>
+              <p className="leading-relaxed">
+                The landscape of artificial intelligence software is expanding rapidly. Finding the <strong>best free artificial intelligence apps</strong> can be overwhelming. Our directory simplifies this by categorizing top generative AI tools, writing assistants, and productivity software specifically tailored for beginners and students.
+              </p>
+              <h3 className="text-xl font-bold text-gray-900 mt-8 mb-4">Discover Top Generative AI Software</h3>
+              <p className="leading-relaxed">
+                We don't just list websites; we verify which platforms offer genuinely useful free tiers. Whether you are looking to compare AI software for creating presentations, coding, or academic research, our updated 2026 directory provides unbiased descriptions and step-by-step functionality guides. Access the most powerful student AI resources right here.
+              </p>
             </div>
           )}
         </div>
